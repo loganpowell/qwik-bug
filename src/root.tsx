@@ -3,10 +3,11 @@ import {
   useContextProvider,
   useStore,
   createContextId,
-  useContext,
   $,
 } from "@builder.io/qwik";
-import { updateIn } from "@thi.ng/paths";
+
+import { useContextCursor } from "./hooks/useContextCursor";
+// import { updateIn } from "@thi.ng/paths";
 
 export const CountContext = createContextId<{
   count: number;
@@ -42,19 +43,20 @@ const Counter = component$(() => {
 
 // BUG: Using updateIn + Object.assign
 const CounterWithUpdateIn = component$(() => {
-  const state = useContext(CountContext);
+  const [count, countCursor] = useContextCursor(CountContext, ["count"]);
 
   const increment = $(() => {
-    console.log("Before updateIn:", state.count, typeof state.count);
-    const newState = updateIn(state, ["count"], (c: number) => c + 1);
-    Object.assign(state, newState);
+    console.log("Before updateIn:", count, typeof count);
+    // const newState = updateIn(state, ["count"], (c: number) => c + 1);
+    // Object.assign(state, newState);
+    countCursor.swap((c) => c + 1);
   });
 
   return (
     <div style={{ border: "2px solid red", padding: "20px" }}>
       <h2>❌ BUG: Using updateIn + Object.assign</h2>
       <p>
-        Count: {state.count} | More string {state.count}
+        Count: {count} | More string {count}
       </p>
       <button onClick$={increment}>Increment (shows bug)</button>
       <p
